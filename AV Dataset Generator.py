@@ -9,7 +9,6 @@ import openpyxl
 from tkinter.filedialog import askopenfilenames
 
 filenames = askopenfilenames(title="Select file", filetype=[("Pdf file", "*.pdf")])
-print(filenames)
 
 wb = openpyxl.Workbook()
 ws = wb.active
@@ -39,13 +38,30 @@ headers = (
     "Vehicle 2 Collision other Choice")
 ws.append(headers);
 
-for i in filenames:
+from datetime import datetime
+
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
+print("Current Time =", current_time)
+
+for idx, i in enumerate(filenames):
+    pageOneExist = False
+    pageTwoExist = False
+    pageThreeExist = False
+    print(f"Processing File Number {idx}")
     images = convert_from_path(i,
                                poppler_path=r"C:\Users\SyntaxError\Desktop\Release-23.01.0-0\poppler-23.01.0\Library\\bin")
 
-    pageOne = np.array(images[0].convert('RGB'))
-    pageTwo = np.array(images[1].convert('RGB'))
-    pageThree = np.array(images[2].convert('RGB'))
+    if len(images) > 0:
+        pageOne = np.array(images[0].convert('RGB'))
+        pageOneExist = True
+    if len(images) > 1:
+        pageTwo = np.array(images[1].convert('RGB'))
+        pageTwoExist = True
+    if len(images) > 2:
+        pageThreeExist = True
+        pageThree = np.array(images[2].convert('RGB'))
 
     s1_manu_name = ""
     s1_avt = ""
@@ -207,7 +223,9 @@ for i in filenames:
     for x, y, w, h, area in stats[2:]:
         checkbox = blackAndWhiteImage[y:y + h, x: x + w]
         sum_of_sums.append(np.sum(checkbox))
-    s2_time += ' ' + time_list[np.argmax(sum_of_sums)]
+    if len(sum_of_sums) > 0:
+        if len(time_list) > np.argmax(sum_of_sums):
+            s2_time += ' ' + time_list[np.argmax(sum_of_sums)]
 
     # Vehicle Year
     s2_vehicle_year_img = pageOne[1220:1260, 670:965]
@@ -275,7 +293,9 @@ for i in filenames:
     for x, y, w, h, area in stats[2:]:
         checkbox = blackAndWhiteImage[y:y + h, x: x + w]
         sum_of_sums.append(np.sum(checkbox))
-    vehicle_one_status = checkbox_list[np.argmax(sum_of_sums)]
+    if len(sum_of_sums) > 0:
+        if len(checkbox_list) > np.argmax(sum_of_sums):
+            vehicle_one_status = checkbox_list[np.argmax(sum_of_sums)]
 
     # Number Of Vehicles Involved
     s2_vehicles_involved_img = pageOne[1426:1464, 1291:1624]
@@ -348,9 +368,37 @@ for i in filenames:
     for x, y, w, h, area in stats[2:]:
         checkbox = blackAndWhiteImage[y:y + h, x: x + w]
         sum_of_sums.append(np.sum(checkbox))
-    vehicle_one_damage = checkbox_list[np.argmax(sum_of_sums)]
+    if len(sum_of_sums) > 0:
+        if len(checkbox_list) > np.argmax(sum_of_sums):
+            vehicle_one_damage = checkbox_list[np.argmax(sum_of_sums)]
 
     #     # PAGE TWO STARTED
+    if pageTwoExist is not True:
+        output = (
+            s1_manu_name, s1_avt, s1_business_name, s1_telephone_number, s1_street_address,
+            s1_city, s1_state, s1_zip, s2_date, s2_time, s2_vehicle_year, s2_make, s2_model,
+            s2_license_plate_number, s2_vehicle_identification_number, s2_sviri, s2_address,
+            s2_city, s2_country, s2_state, s2_zip, vehicle_one_status, s2_vehicles_involved,
+            s2_driver_fullname, s2_driver_license_number, s2_driver_state, s2_driver_dob,
+            s2_driver_insurance, s2_driver_policy_number, s2_naic_number, s2_policy_period,
+            vehicle_one_damage, s3_vehicle_year, s3_model, s3_license_plate_number,
+            s3_vehicle_identification_number, vehicle_two_status, s3_sviri, s3_vehicles_involved, s3_driver_fullname,
+            s3_driver_license, s3_state, s3_driver_dob, s3_driver_insurance, s3_driver_policy_number,
+            s3_naic_number, s3_policy_period, mode, ' '.join(description), vehicle_one_weather,
+            vehicle_one_other_weather_choices, vehicle_two_weather, vehicle_two_other_weather_choices,
+            vehicle_one_lighting, vehicle_one_other_lighting_choices, vehicle_two_lighting,
+            vehicle_two_other_lighting_choices, vehicle_one_roadway_surface,
+            vehicle_one_other_roadway_surface_choices, vehicle_two_roadway_surface,
+            vehicle_two_other_roadway_surface_choices, vehicle_one_roadway_condition,
+            vehicle_one_other_roadway_condition_choices, vehicle_two_roadway_condition,
+            vehicle_two_other_roadway_condition_choices, vehicle_one_movement,
+            vehicle_one_other_movement_choices, vehicle_two_movement,
+            vehicle_two_other_movement_choices, vehicle_one_collision_type,
+            vehicle_one_other_collision_type, vehicle_two_collision_type,
+            vehicle_two_other_collision_type)
+
+        ws.append(output)
+        continue
 
     # SECTION 3
     # Vehicle Year
@@ -473,7 +521,9 @@ for i in filenames:
     for x, y, w, h, area in stats[2:]:
         checkbox = blackAndWhiteImage[y:y + h, x: x + w]
         sum_of_sums.append(np.sum(checkbox))
-    vehicle_two_status = checkbox_list[np.argmax(sum_of_sums)]
+    if len(sum_of_sums) > 0:
+        if len(checkbox_list) > np.argmax(sum_of_sums):
+            vehicle_two_status = checkbox_list[np.argmax(sum_of_sums)]
 
     # Mode
     cv2.rectangle(pageTwo, (60, 1645), (690, 1690), (255, 0, 0), 2)
@@ -489,9 +539,38 @@ for i in filenames:
     for x, y, w, h, area in stats[2:]:
         checkbox = blackAndWhiteImage[y:y + h, x: x + w]
         sum_of_sums.append(np.sum(checkbox))
-    mode = checkbox_list[np.argmax(sum_of_sums)]
+    if len(sum_of_sums) > 0:
+        if len(checkbox_list) > np.argmax(sum_of_sums):
+            mode = checkbox_list[np.argmax(sum_of_sums)]
     #
     #     # PAGE THREE STARTED
+
+    if pageThreeExist is not True:
+        output = (
+            s1_manu_name, s1_avt, s1_business_name, s1_telephone_number, s1_street_address,
+            s1_city, s1_state, s1_zip, s2_date, s2_time, s2_vehicle_year, s2_make, s2_model,
+            s2_license_plate_number, s2_vehicle_identification_number, s2_sviri, s2_address,
+            s2_city, s2_country, s2_state, s2_zip, vehicle_one_status, s2_vehicles_involved,
+            s2_driver_fullname, s2_driver_license_number, s2_driver_state, s2_driver_dob,
+            s2_driver_insurance, s2_driver_policy_number, s2_naic_number, s2_policy_period,
+            vehicle_one_damage, s3_vehicle_year, s3_model, s3_license_plate_number,
+            s3_vehicle_identification_number, vehicle_two_status, s3_sviri, s3_vehicles_involved, s3_driver_fullname,
+            s3_driver_license, s3_state, s3_driver_dob, s3_driver_insurance, s3_driver_policy_number,
+            s3_naic_number, s3_policy_period, mode, ' '.join(description), vehicle_one_weather,
+            vehicle_one_other_weather_choices, vehicle_two_weather, vehicle_two_other_weather_choices,
+            vehicle_one_lighting, vehicle_one_other_lighting_choices, vehicle_two_lighting,
+            vehicle_two_other_lighting_choices, vehicle_one_roadway_surface,
+            vehicle_one_other_roadway_surface_choices, vehicle_two_roadway_surface,
+            vehicle_two_other_roadway_surface_choices, vehicle_one_roadway_condition,
+            vehicle_one_other_roadway_condition_choices, vehicle_two_roadway_condition,
+            vehicle_two_other_roadway_condition_choices, vehicle_one_movement,
+            vehicle_one_other_movement_choices, vehicle_two_movement,
+            vehicle_two_other_movement_choices, vehicle_one_collision_type,
+            vehicle_one_other_collision_type, vehicle_two_collision_type,
+            vehicle_two_other_collision_type)
+
+        ws.append(output)
+        continue
 
     line_min_width = 20
     kernal_h = np.ones((1, line_min_width), np.uint8)
@@ -505,14 +584,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
     vehicle_one_weather_choices = []
     idx = 0
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_one_weather_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_one_weather_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -529,14 +610,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     idx = 0
     vehicle_two_weather_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
             cross_found = True
-            vehicle_two_weather_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_two_weather_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
     if len(vehicle_two_weather_choices) > 0:
@@ -554,14 +637,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
     idx = 0
     vehicle_one_lighting_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_one_lighting_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_one_lighting_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -578,14 +663,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     idx = 0
     vehicle_two_lighting_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
             cross_found = True
-            vehicle_two_lighting_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_two_lighting_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -603,14 +690,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D']
     idx = 0
     vehicle_one_roadway_surface_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_one_roadway_surface_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_one_roadway_surface_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -627,13 +716,15 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     idx = 0
     vehicle_two_roadway_surface_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_two_roadway_surface_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_two_roadway_surface_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -651,14 +742,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     idx = 0
     vehicle_one_roadway_condition_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_one_roadway_condition_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_one_roadway_condition_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -675,7 +768,8 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     idx = 0
     vehicle_two_roadway_condition_choices = []
     first = True
@@ -687,7 +781,8 @@ for i in filenames:
         # cv2.imshow('', small_box)
         # cv2.waitKey(0)
         if cv2.countNonZero(small_box) > 0:
-            vehicle_two_roadway_condition_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_two_roadway_condition_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -704,14 +799,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']
     vehicle_one_movement_choices = []
     idx = 0
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_one_movement_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_one_movement_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -728,14 +825,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']
     idx = 0
     vehicle_two_movement_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_two_movement_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_two_movement_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
 
@@ -754,14 +853,16 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     checkbox_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     idx = 0
     vehicle_one_collision_type_choices = []
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_one_collision_type_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_one_collision_type_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
     if len(vehicle_one_collision_type_choices) > 0:
@@ -777,13 +878,15 @@ for i in filenames:
     blackAndWhiteImage = 255 - blackAndWhiteImage
     img_bin_h = cv2.morphologyEx(blackAndWhiteImage, cv2.MORPH_OPEN, kernal_h)
     ret, labels, stats, centroids = cv2.connectedComponentsWithStats(img_bin_h, connectivity=8, ltype=cv2.CV_32S)
-    last_y = stats[1][1]
+    if len(stats) > 1 and len(stats[1]) > 1:
+        last_y = stats[1][1]
     vehicle_two_collision_type_choices = []
     idx = 0
     for x, y, w, h, area in stats[2:]:
         small_box = blackAndWhiteImage[last_y + 10:y - 10, x + 10: x + w - 10]
         if cv2.countNonZero(small_box) > 0:
-            vehicle_two_collision_type_choices.append(checkbox_list[idx])
+            if idx < len(checkbox_list):
+                vehicle_two_collision_type_choices.append(checkbox_list[idx])
         last_y = y
         idx += 1
     if len(vehicle_two_collision_type_choices) > 0:
@@ -815,7 +918,11 @@ for i in filenames:
         vehicle_two_other_collision_type)
 
     ws.append(output)
-wb.save('output.xlsx')
+wb.save('Cal_DMV_AV_Dataset.xlsx')
+
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print("Current Time =", current_time)
 
 # vehicle involved (DONE)
 # PDF TO JPG   (DONE)
