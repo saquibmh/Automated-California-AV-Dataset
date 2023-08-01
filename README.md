@@ -27,4 +27,4 @@ Geocode the Address so as to identify collision coordinates.
 Please feel free to contribute to this project
 
 ## Lab website
-Visit our Website: [Ryan Research Lab](https://www.alyssaryan.co)
+Visit our Website: [Ryan Research Lab](https://www.alyssaryan.co).  
