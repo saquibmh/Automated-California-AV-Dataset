@@ -6,7 +6,7 @@ The California DMV receives collision reports for Autonomous Vehicles in PDF for
 [![DOI](https://zenodo.org/badge/658437595.svg)](https://zenodo.org/badge/latestdoi/658437595)
 
 
-Author: Saquib M Haroon and Alyssa Ryan @ University of Arizona
+Authors: Saquib M Haroon and Alyssa Ryan @ University of Arizona
 ## Libraries used
 The successful implementation of the extractor relied on the utilization of specific libraries. These libraries played a crucial role in generating the final Excel file from the Autonomous Vehicle collision reports.  
 
@@ -22,7 +22,9 @@ Find the latest extracted dataset upto June 2023 [here](Cal_DMV_AV_Dataset_2019+
 ## Future Work
 
 Use NLP models to automatically extract Injury information from the description.  
-Geocode the Address so as to identify collision coordinates
+Geocode the Address so as to identify collision coordinates.
+
+Please feel free to contribute to this project
 
 ## Lab website
 Visit our Website: [Ryan Research Lab](https://www.alyssaryan.co)
