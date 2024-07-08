@@ -31,4 +31,4 @@ Visit our Website: [Ryan Research Lab](https://www.alyssaryan.co).
 
 
 ## Please Cite the Paper
-Haroon, S. M., & Ryan, A. (2024). Understanding key factors in automated vehicle collisions: Automating data extraction and analyzing key insights using explainable AI. Journal of Transportation Safety & Security, 1-24.
+Haroon, S. M., & Ryan, A. (2024). Understanding key factors in automated vehicle collisions: Automating data extraction and analyzing key insights using explainable AI. Journal of Transportation Safety & Security, 1-24. [Link](https://www.tandfonline.com/doi/full/10.1080/19439962.2024.2320630)
